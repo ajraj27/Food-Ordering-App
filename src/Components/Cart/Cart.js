@@ -15,7 +15,7 @@ const Cart = (props) => {
     ctx.removeItem(id);
   };
 
-  const totalAmount = `$${ctx.amount.toFixed(2)}`;
+  const totalAmount = `Rs.${ctx.amount.toFixed(2)}`;
   const hasItems = ctx.items.length > 0;
   const cartItems = (
     <ul className={classes["cart-items"]}>

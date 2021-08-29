@@ -1,36 +1,61 @@
 import classes from "./AvailableMeals.module.css";
+import { useEffect, useState } from "react";
 import Card from "../UI/Card";
 import MealItem from "./MealItem/MealItem";
 
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Biryani",
-    description: "Delicious Hyderabadi biryani!",
-    price: 220,
-  },
-  {
-    id: "m2",
-    name: "Kadhai Paneer",
-    description: "Chef's pecialty!",
-    price: 150,
-  },
-  {
-    id: "m3",
-    name: "Chicken Burger",
-    description: "Delicious, raw, meaty",
-    price: 130,
-  },
-  {
-    id: "m4",
-    name: "Salad",
-    description: "Healthy...and green...",
-    price: 60,
-  },
-];
-
 const AvailableMeals = () => {
-  const mealsList = DUMMY_MEALS.map((meal) => (
+  const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState(null);
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const res = await fetch(
+        "https://reacr-test-app-default-rtdb.firebaseio.com/meals.json"
+      );
+
+      if (!res.ok) {
+        throw new Error("Something went wrong !");
+      }
+
+      const data = await res.json();
+      const loadedMeals = [];
+
+      for (const key in data) {
+        loadedMeals.push({
+          id: key,
+          name: data[key].name,
+          price: data[key].price,
+          description: data[key].description,
+        });
+      }
+
+      setMeals(loadedMeals);
+      setIsLoading(false);
+    };
+
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setHttpError(error.message);
+    });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className={classes.mealsLoading}>
+        <h2>Loading...</h2>
+      </section>
+    );
+  }
+
+  if (httpError) {
+    return (
+      <section className={classes.httpError}>
+        <h2>{httpError}</h2>
+      </section>
+    );
+  }
+  const mealsList = meals.map((meal) => (
     <MealItem
       id={meal.id}
       key={meal.id}
